@@ -1,22 +1,46 @@
 let timeLeft;
 let timerId = null;
 let isWorkTime = true;
+let WORK_TIME;
+let BREAK_TIME;
 
+// Get all DOM elements
 const minutesDisplay = document.getElementById('minutes');
 const secondsDisplay = document.getElementById('seconds');
 const startButton = document.getElementById('start');
 const resetButton = document.getElementById('reset');
 const toggleButton = document.getElementById('toggle-mode');
 const modeText = document.getElementById('mode-text');
+const modal = document.getElementById('setup-modal');
+const startAppButton = document.getElementById('start-app');
+const workTimeInput = document.getElementById('work-time');
+const breakTimeInput = document.getElementById('break-time');
 
-const WORK_TIME = 25 * 60; // 25 minutes in seconds
-const BREAK_TIME = 5 * 60; // 5 minutes in seconds
-
+// Define all functions first
 function updateDisplay(timeLeft) {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
     minutesDisplay.textContent = minutes.toString().padStart(2, '0');
     secondsDisplay.textContent = seconds.toString().padStart(2, '0');
+}
+
+function updateTimes() {
+    WORK_TIME = parseInt(workTimeInput.value) * 60;
+    BREAK_TIME = parseInt(breakTimeInput.value) * 60;
+    timeLeft = WORK_TIME;
+    updateDisplay(timeLeft);
+}
+
+function resetTimer() {
+    clearInterval(timerId);
+    timerId = null;
+    isWorkTime = true;
+    modal.style.display = 'flex';
+    modeText.textContent = 'Work Time';
+    toggleButton.textContent = 'Switch to Break';
+    toggleButton.classList.add('btn-blue');
+    toggleButton.classList.remove('btn-orange');
+    startButton.textContent = 'Start';
 }
 
 function switchMode() {
@@ -30,7 +54,12 @@ function switchMode() {
 }
 
 function startTimer() {
-    if (timerId !== null) return;
+    if (timerId !== null) {
+        clearInterval(timerId);
+        timerId = null;
+        startButton.textContent = 'Start';
+        return;
+    }
     
     if (!timeLeft) {
         timeLeft = WORK_TIME;
@@ -40,7 +69,6 @@ function startTimer() {
         timeLeft--;
         updateDisplay(timeLeft);
         
-        // Update the browser tab title
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
         document.title = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} - Pomodoro Timer`;
@@ -48,88 +76,39 @@ function startTimer() {
         if (timeLeft === 0) {
             clearInterval(timerId);
             timerId = null;
-            alert(isWorkTime ? 'Work time is over! Take a break!' : 'Break is over! Back to work!');
+            if (isWorkTime) {
+                alert('Work time is over! Take a break!');
+            } else {
+                alert('Get back to work!');
+            }
             switchMode();
-            resetTitle(); // Reset the title when timer completes
+            startButton.textContent = 'Start';
         }
     }, 1000);
 
     startButton.textContent = 'Pause';
 }
 
-function resetTimer() {
-    clearInterval(timerId);
-    timerId = null;
-    isWorkTime = true;
+// Initialize the app
+function initializeApp() {
+    WORK_TIME = parseInt(workTimeInput.value) * 60;
+    BREAK_TIME = parseInt(breakTimeInput.value) * 60;
     timeLeft = WORK_TIME;
-    modeText.textContent = 'Work Time';
-    toggleButton.textContent = 'Switch to Break';
-    toggleButton.classList.add('btn-blue');
-    toggleButton.classList.remove('btn-orange');
+    modal.style.display = 'none';
     updateDisplay(timeLeft);
-    startButton.textContent = 'Start';
-    resetTitle();
 }
 
-startButton.addEventListener('click', () => {
-    if (timerId === null) {
-        startTimer();
-    } else {
-        clearInterval(timerId);
-        timerId = null;
-        startButton.textContent = 'Start';
-        resetTitle(); // Reset title when paused
-    }
-});
-
+// Add event listeners
+startButton.addEventListener('click', startTimer);
 resetButton.addEventListener('click', resetTimer);
-toggleButton.addEventListener('click', () => {
-    if (timerId === null) {
-        switchMode();
-    }
-});
+toggleButton.addEventListener('click', switchMode);
+startAppButton.addEventListener('click', initializeApp);
 
-// Initialize the display
-timeLeft = WORK_TIME;
-updateDisplay(timeLeft);
-
-function updateTimer() {
-    if (isRunning) {
-        const currentTime = new Date().getTime();
-        const elapsedTime = currentTime - startTime;
-        timeLeft = Math.max(0, duration - elapsedTime);
-
-        if (timeLeft === 0) {
-            handleTimerComplete();
-        }
-
-        const minutes = Math.floor(timeLeft / 60000);
-        const seconds = Math.floor((timeLeft % 60000) / 1000);
-
-        minutesDisplay.textContent = String(minutes).padStart(2, '0');
-        secondsDisplay.textContent = String(seconds).padStart(2, '0');
-        
-        // Update the browser tab title
-        document.title = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} - Pomodoro Timer`;
-
-        if (timeLeft > 0) {
-            requestAnimationFrame(updateTimer);
-        }
-    }
-}
-
-// Add this to reset the title when timer is reset or stopped
-function resetTitle() {
-    document.title = 'Pomodoro Timer';
-}
-
-// Make sure to call resetTitle() in your reset function and when the timer completes
-function reset() {
-    // ... existing reset code ...
-    resetTitle();
-}
-
-function handleTimerComplete() {
-    // ... existing completion code ...
-    resetTitle();
-}
+// Initialize when page loads
+window.onload = function() {
+    WORK_TIME = parseInt(workTimeInput.value) * 60;
+    BREAK_TIME = parseInt(breakTimeInput.value) * 60;
+    timeLeft = WORK_TIME;
+    updateDisplay(timeLeft);
+    modal.style.display = 'flex';
+};

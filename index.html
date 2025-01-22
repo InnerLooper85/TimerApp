@@ -20,6 +20,22 @@
             <button id="toggle-mode" class="btn">Switch to Break</button>
         </div>
     </div>
+    <div id="setup-modal" class="modal">
+        <div class="modal-content">
+            <h2>Set Your Timer</h2>
+            <div class="time-inputs">
+                <div class="input-group">
+                    <label for="work-time">Work Time (minutes):</label>
+                    <input type="number" id="work-time" value="25" min="1" max="60">
+                </div>
+                <div class="input-group">
+                    <label for="break-time">Break Time (minutes):</label>
+                    <input type="number" id="break-time" value="5" min="1" max="60">
+                </div>
+            </div>
+            <button id="start-app" class="btn btn-primary">Start</button>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
