@@ -35,7 +35,7 @@ function resetTimer() {
     clearInterval(timerId);
     timerId = null;
     isWorkTime = true;
-    modal.style.display = 'flex';
+    modal.classList.add('show');
     modeText.textContent = 'Work Time';
     toggleButton.textContent = 'Switch to Break';
     toggleButton.classList.add('btn-blue');
@@ -94,7 +94,7 @@ function initializeApp() {
     WORK_TIME = parseInt(workTimeInput.value) * 60;
     BREAK_TIME = parseInt(breakTimeInput.value) * 60;
     timeLeft = WORK_TIME;
-    modal.style.display = 'none';
+    modal.classList.remove('show');
     updateDisplay(timeLeft);
 }
 
@@ -110,5 +110,5 @@ window.onload = function() {
     BREAK_TIME = parseInt(breakTimeInput.value) * 60;
     timeLeft = WORK_TIME;
     updateDisplay(timeLeft);
-    modal.style.display = 'flex';
+    modal.classList.add('show');
 };
